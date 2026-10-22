@@ -1,0 +1,1762 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Stack+Sans+Headline:wght@200..700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #f5f6fa;
+        --surface: #ffffff;
+        --border: #e5e7eb;
+        --accent: #800020;
+        --accent-hover: #67001a;
+        --text: #4a4a4a;
+        --muted: #737373;
+        --shipped: #606400;
+        --pending: #8c671b;
+        --canceled: #800020;
+        --cream: #f2e7c8;
+        --sand: #e5d9c7;
+        --charcoal: #4a4a4a;
+        --radius: 8px;
+      }
+
+      body {
+        font-family: "DM Sans", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      /* ── SIDEBAR ── */
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 210px;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+      }
+
+      .sidebar-brand {
+        height: 64px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 18px;
+        border-bottom: 1px solid var(--border);
+        box-sizing: border-box;
+      }
+
+      .sidebar-brand .logo {
+        width: 32px;
+        height: 32px;
+        background: var(--accent);
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .sidebar-brand span {
+        font-weight: 700;
+        font-size: 14px;
+      }
+
+      .nav-label {
+        padding: 16px 18px 4px;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 18px;
+        cursor: pointer;
+        color: var(--muted);
+        font-size: 13.5px;
+        border-left: 3px solid transparent;
+        transition: all 0.15s;
+      }
+
+      .nav-item:hover {
+        color: var(--text);
+        background: var(--bg);
+      }
+      .nav-item.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        background: #f8eef0;
+      }
+
+      /* ── MAIN ── */
+      .main {
+        margin-left: 210px;
+        min-height: 100vh;
+      }
+
+      /* ── TOPBAR ── */
+      .topbar {
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        box-sizing: border-box;
+      }
+
+      .topbar-title {
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.2;
+      }
+      .topbar-sub {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 3px;
+        line-height: 1.2;
+      }
+      .topbar-right {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      /* ── SEARCH ── */
+      .search-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+      }
+      .search-wrap i,
+      .search-wrap svg {
+        position: absolute;
+        right: 12px;
+        left: auto !important;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        pointer-events: none;
+      }
+      .search-wrap input {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface);
+        color: var(--text);
+        padding: 8px 34px 8px 12px;
+        font-size: 13px;
+        width: 220px;
+        outline: none;
+        transition: border-color 0.15s;
+        font-family: inherit;
+      }
+      .search-wrap input:focus {
+        border-color: var(--accent);
+      }
+
+      /* ── BUTTONS ── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 13px;
+        border-radius: var(--radius);
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.15s;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: var(--accent-hover);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid var(--border);
+      }
+      .btn-ghost:hover {
+        color: var(--text);
+        border-color: #9ca3af;
+      }
+      .btn-danger {
+        background: #fae8eb;
+        color: var(--canceled);
+        border: 1px solid #f3c2c9;
+      }
+      .btn-danger:hover {
+        background: #f5d4da;
+      }
+      .btn-sm {
+        padding: 5px 9px;
+        font-size: 12px;
+      }
+
+      /* ── CONTENT ── */
+      .content {
+        padding: 20px 24px;
+      }
+
+      /* ── STAT CARDS ── */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px 18px;
+      }
+
+      .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .stat-label {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 500;
+      }
+      .stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        margin-top: 10px;
+      }
+      .stat-sub {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+
+      /* ── TABLE CARD ── */
+      .table-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+
+      .table-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .table-toolbar h3 {
+        font-size: 13.5px;
+        font-weight: 600;
+      }
+
+      .filter-tabs {
+        display: flex;
+        gap: 8px;
+      }
+      .filter-tab {
+        padding: 5px 13px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.15s;
+      }
+      .filter-tab:hover {
+        color: var(--text);
+      }
+      .filter-tab.active {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        text-align: left;
+        padding: 10px 16px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        font-weight: 600;
+        background: #f9fafb;
+        border-bottom: 1px solid var(--border);
+      }
+      td {
+        padding: 12px 16px;
+        font-size: 13px;
+        border-bottom: 1px solid var(--border);
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: #fafafa;
+      }
+
+      /* ── SUMMARY TABLES ── */
+      .summary-table th {
+        padding: 14px 24px;
+        font-size: 11.5px;
+        letter-spacing: 0.07em;
+      }
+      .summary-table td {
+        padding: 16px 24px;
+        font-size: 14px;
+      }
+      .summary-table .badge,
+      .summary-table .cat-badge {
+        padding: 4px 12px;
+        font-size: 12px;
+      }
+
+      .product-name {
+        font-weight: 500;
+      }
+      .product-desc {
+        font-size: 11px;
+        color: var(--muted);
+        max-width: 240px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 8px;
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 500;
+      }
+      .badge-shipped {
+        background: #f0f2d8;
+        color: var(--shipped);
+      }
+      .badge-pending {
+        background: #fbf4e2;
+        color: var(--pending);
+      }
+      .badge-canceled {
+        background: #fae8eb;
+        color: var(--canceled);
+      }
+
+      .cat-badge {
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 500;
+        background: #eaf2fa;
+        color: #2b6cb0;
+        border: 1px solid #cde0f5;
+      }
+
+      .action-cell {
+        display: flex;
+        gap: 5px;
+      }
+
+      /* ── MODAL ── */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .modal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        width: 560px;
+        max-height: 88vh;
+        overflow-y: auto;
+        transform: translateY(10px);
+        transition: transform 0.2s;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+      }
+      .modal-overlay.open .modal {
+        transform: translateY(0);
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--border);
+      }
+      .modal-header h2 {
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .modal-close {
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 6px;
+        display: flex;
+      }
+      .modal-close:hover {
+        color: var(--text);
+        background: var(--bg);
+      }
+
+      .modal-body {
+        padding: 20px 22px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 13px;
+      }
+      .form-grid .full {
+        grid-column: 1 / -1;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .form-group label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #4a4a4a;
+      }
+      input::placeholder,
+      textarea::placeholder {
+        color: #b0b0b0;
+        font-weight: 400;
+        opacity: 1;
+      }
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--bg);
+        color: var(--text);
+        padding: 9px 14px;
+        font-size: 13px;
+        outline: none;
+        font-family: inherit;
+        transition: border-color 0.15s;
+      }
+      .form-group select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-color: var(--bg);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        background-size: 15px 15px;
+        padding-right: 38px;
+        cursor: pointer;
+      }
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        border-color: var(--accent);
+      }
+      .form-group textarea {
+        resize: vertical;
+        min-height: 65px;
+      }
+
+      /* date picker */
+      .date-picker-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        cursor: pointer;
+      }
+      .date-picker-wrap input[type="text"] {
+        width: 100%;
+        padding-right: 38px;
+        cursor: pointer;
+        background: var(--bg);
+        user-select: none;
+      }
+      .date-picker-wrap input[type="date"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        pointer-events: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+      }
+      .date-picker-wrap i,
+      .date-picker-wrap svg {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 14px 22px;
+        border-top: 1px solid var(--border);
+      }
+
+      /* detail grid */
+      .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .detail-item label {
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 500;
+        display: block;
+        margin-bottom: 3px;
+      }
+      .detail-item.full {
+        grid-column: 1 / -1;
+      }
+
+      /* confirm */
+      .confirm-body {
+        padding: 28px 22px 16px;
+        text-align: center;
+      }
+      .confirm-icon {
+        width: 48px;
+        height: 48px;
+        background: #fae8eb;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 14px;
+        color: var(--canceled);
+      }
+      .confirm-body h3 {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .confirm-body p {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .confirm-footer {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 22px 22px;
+      }
+
+      /* empty */
+      .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: var(--muted);
+      }
+
+      /* toast */
+      .toast-wrap {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        z-index: 200;
+      }
+      .toast {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 11px 15px;
+        font-size: 13px;
+        min-width: 260px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        animation: slideIn 0.2s ease;
+      }
+      .toast.success {
+        border-left: 3px solid var(--shipped);
+      }
+      .toast.error {
+        border-left: 3px solid var(--canceled);
+      }
+      .toast.info {
+        border-left: 3px solid var(--accent);
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo">
+          <i
+            data-lucide="package"
+            style="width: 16px; height: 16px; color: #fff"
+          ></i>
+        </div>
+        <span>OrderMS</span>
+      </div>
+
+      <span class="nav-label">Management</span>
+      <div class="nav-item active" onclick="setView('orders', this)">
+        <i data-lucide="clipboard-list" style="width: 15px; height: 15px"></i>
+        Orders
+      </div>
+
+      <span class="nav-label">Analytics</span>
+      <div class="nav-item" onclick="setView('summary', this)">
+        <i data-lucide="bar-chart-2" style="width: 15px; height: 15px"></i>
+        Summary
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title" id="pageTitle">Orders</div>
+          <div class="topbar-sub" id="pageSub">
+            Manage all your product orders
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="search-wrap">
+            <i data-lucide="search" style="width: 14px; height: 14px"></i>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search..."
+              oninput="handleSearch()"
+            />
+          </div>
+          <button class="btn btn-primary" onclick="openCreateModal()">
+            <i data-lucide="plus" style="width: 14px; height: 14px"></i> Add
+            Order
+          </button>
+        </div>
+      </div>
+
+      <div class="content" id="contentArea"></div>
+    </div>
+
+    <!-- MODAL: CREATE / EDIT -->
+    <div class="modal-overlay" id="formModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="formModalTitle">Add New Order</h2>
+          <button class="modal-close" onclick="closeModal('formModal')">
+            <i data-lucide="x" style="width: 15px; height: 15px"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="orderForm" class="form-grid" onsubmit="return false;">
+            <div class="form-group full">
+              <label>Product Name *</label>
+              <input
+                type="text"
+                id="f_productName"
+                placeholder="e.g. Intel Xeon E5-2699 V3"
+              />
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="f_category">
+                <option>CPU</option>
+                <option>Video Card</option>
+                <option>Storage</option>
+                <option>Mother Board</option>
+                <option>RAM</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select id="f_status">
+                <option>Pending</option>
+                <option>Shipped</option>
+                <option>Canceled</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label>Description</label>
+              <textarea
+                id="f_description"
+                placeholder="e.g. Speed: 2.3GHz, Cores: 18, TDP: 145W"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label>Standard Cost ($) *</label>
+              <input
+                type="number"
+                id="f_standardCost"
+                step="0.01"
+                placeholder="0.00"
+                oninput="autoCalcProfit()"
+              />
+            </div>
+            <div class="form-group">
+              <label>List Price ($) *</label>
+              <input
+                type="number"
+                id="f_listPrice"
+                step="0.01"
+                placeholder="0.00"
+                oninput="autoCalcProfit()"
+              />
+            </div>
+            <div class="form-group">
+              <label>Profit ($)</label>
+              <input
+                type="number"
+                id="f_profit"
+                step="0.01"
+                placeholder="0.00"
+              />
+            </div>
+            <div class="form-group">
+              <label>Quantity *</label>
+              <input type="number" id="f_quantity" min="1" placeholder="1" />
+            </div>
+            <div class="form-group">
+              <label>Warehouse *</label>
+              <input
+                type="text"
+                id="f_warehouse"
+                placeholder="e.g. San Francisco"
+              />
+            </div>
+            <div class="form-group">
+              <label>Order Date</label>
+              <div class="date-picker-wrap" onclick="openDatePicker()">
+                <input
+                  type="text"
+                  id="f_orderDate_display"
+                  placeholder="dd-mm-yyyy"
+                  readonly
+                />
+                <input
+                  type="date"
+                  id="f_orderDate"
+                  tabindex="-1"
+                  onchange="handleDateChange(this.value)"
+                />
+                <i data-lucide="calendar" style="width: 15px; height: 15px"></i>
+              </div>
+            </div>
+            <div class="form-group full">
+              <label>Customer Name *</label>
+              <input
+                type="text"
+                id="f_customerName"
+                placeholder="Customer full name"
+              />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="closeModal('formModal')">
+            Cancel
+          </button>
+          <button class="btn btn-primary" onclick="submitForm()">
+            <i data-lucide="save" style="width: 13px; height: 13px"></i>
+            <span id="formSubmitLabel">Save Order</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: DETAIL -->
+    <div class="modal-overlay" id="detailModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Order Detail</h2>
+          <button class="modal-close" onclick="closeModal('detailModal')">
+            <i data-lucide="x" style="width: 15px; height: 15px"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-grid" id="detailContent"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="closeModal('detailModal')">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: CONFIRM DELETE -->
+    <div class="modal-overlay" id="confirmModal">
+      <div class="modal" style="width: 400px">
+        <div class="confirm-body">
+          <div class="confirm-icon">
+            <i data-lucide="trash-2" style="width: 20px; height: 20px"></i>
+          </div>
+          <h3>Delete Order</h3>
+          <p id="confirmText">Are you sure? This cannot be undone.</p>
+        </div>
+        <div class="confirm-footer">
+          <button class="btn btn-ghost" onclick="closeModal('confirmModal')">
+            Cancel
+          </button>
+          <button class="btn btn-danger" id="confirmDeleteBtn">
+            <i data-lucide="trash-2" style="width: 13px; height: 13px"></i>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast-wrap" id="toastWrap"></div>
+
+    <script>
+      // --- DATA ---
+      let orders = [
+        {
+          id: 1,
+          productName: "Intel Xeon E5-2699 V3 (OEM/Tray)",
+          category: "CPU",
+          description: "Speed: 2.3GHz, Cores: 18, TDP: 145W",
+          standardCost: 2867.51,
+          listPrice: 3410.46,
+          profit: 542.95,
+          quantity: 132,
+          status: "Shipped",
+          warehouse: "Southlake Texas",
+          customerName: "Flor Stone",
+          orderDate: "17-11-2016",
+        },
+        {
+          id: 2,
+          productName: "Intel Xeon E5-2697 V3",
+          category: "CPU",
+          description: "Speed: 2.6GHz, Cores: 14",
+          standardCost: 2326.27,
+          listPrice: 2774.98,
+          profit: 448.71,
+          quantity: 124,
+          status: "Shipped",
+          warehouse: "Southlake Texas",
+          customerName: "Lavera Emerson",
+          orderDate: "20-02-2017",
+        },
+        {
+          id: 3,
+          productName: "Intel Xeon E5-2698 V3 (OEM/Tray)",
+          category: "CPU",
+          description: "Speed: 2.3GHz, Cores: 16",
+          standardCost: 2035.18,
+          listPrice: 2660.72,
+          profit: 625.54,
+          quantity: 92,
+          status: "Canceled",
+          warehouse: "Southlake Texas",
+          customerName: "Fern Head",
+          orderDate: "03-01-2017",
+        },
+        {
+          id: 4,
+          productName: "PNY VCQP6000-PB",
+          category: "Video Card",
+          description: "Memory: 24GB, Core Clock: 1.42GHz",
+          standardCost: 4058.99,
+          listPrice: 5499.99,
+          profit: 1441.0,
+          quantity: 46,
+          status: "Canceled",
+          warehouse: "San Francisco",
+          customerName: "Nada West",
+          orderDate: "30-06-2017",
+        },
+        {
+          id: 5,
+          productName: "PNY VCQM6000-24GB-PB",
+          category: "Video Card",
+          description: "Chipset: Quadro M6000, Memory: 24GB",
+          standardCost: 3619.14,
+          listPrice: 4139.0,
+          profit: 519.86,
+          quantity: 104,
+          status: "Shipped",
+          warehouse: "San Francisco",
+          customerName: "Catherina Haney",
+          orderDate: "30-06-2016",
+        },
+        {
+          id: 6,
+          productName: "PNY VCQM6000-PB",
+          category: "Video Card",
+          description: "Chipset: Quadro M6000, Memory: 12GB",
+          standardCost: 2505.04,
+          listPrice: 3254.99,
+          profit: 749.95,
+          quantity: 49,
+          status: "Shipped",
+          warehouse: "San Francisco",
+          customerName: "Harriette Melton",
+          orderDate: "30-06-2015",
+        },
+        {
+          id: 7,
+          productName: "Crucial 64GB DDR4",
+          category: "Storage",
+          description:
+            "Speed: DDR4-2133, Type: 288-pin DIMM, CAS: 15, Size: 64GB",
+          standardCost: 1139.23,
+          listPrice: 1620.99,
+          profit: 481.76,
+          quantity: 104,
+          status: "Shipped",
+          warehouse: "New Jersey",
+          customerName: "Sharell Branch",
+          orderDate: "02-12-2016",
+        },
+        {
+          id: 8,
+          productName: "G.Skill TridentZ RGB 128GB",
+          category: "Storage",
+          description:
+            "Speed: DDR4-3200, Type: 288-pin DIMM, CAS: 14, Size: 128GB",
+          standardCost: 1330.26,
+          listPrice: 1504.99,
+          profit: 174.73,
+          quantity: 66,
+          status: "Shipped",
+          warehouse: "New Jersey",
+          customerName: "Eleanor Farley",
+          orderDate: "27-10-2016",
+        },
+        {
+          id: 9,
+          productName: "Corsair Dominator Platinum 128GB",
+          category: "Storage",
+          description:
+            "Speed: DDR4-3200, Type: 288-pin DIMM, CAS: 16, Size: 128GB",
+          standardCost: 1051.97,
+          listPrice: 1449.99,
+          profit: 398.02,
+          quantity: 70,
+          status: "Shipped",
+          warehouse: "New Jersey",
+          customerName: "Justina Hayes",
+          orderDate: "14-06-2016",
+        },
+        {
+          id: 10,
+          productName: "Intel DP35DPM",
+          category: "Mother Board",
+          description:
+            "CPU: LGA775, Form Factor: ATX, RAM Slots: 4, Max RAM: 8GB",
+          standardCost: 626.22,
+          listPrice: 789.79,
+          profit: 163.57,
+          quantity: 71,
+          status: "Shipped",
+          warehouse: "Toronto",
+          customerName: "Shandra Higgins",
+          orderDate: "29-11-2016",
+        },
+        {
+          id: 11,
+          productName: "Asus X99-E-10G WS",
+          category: "Mother Board",
+          description:
+            "CPU: LGA2011-3, Form Factor: SSI CEB, RAM Slots: 8, Max RAM: 128GB",
+          standardCost: 582.02,
+          listPrice: 649.0,
+          profit: 66.98,
+          quantity: 54,
+          status: "Shipped",
+          warehouse: "Toronto",
+          customerName: "Thomasena Pickett",
+          orderDate: "28-09-2017",
+        },
+        {
+          id: 12,
+          productName: "Asus ROG MAXIMUS IX EXTREME",
+          category: "Mother Board",
+          description:
+            "CPU: LGA1151, Form Factor: EATX, RAM Slots: 4, Max RAM: 64GB",
+          standardCost: 480.89,
+          listPrice: 573.99,
+          profit: 93.1,
+          quantity: 137,
+          status: "Pending",
+          warehouse: "Toronto",
+          customerName: "Aaron Holder",
+          orderDate: "27-09-2017",
+        },
+        {
+          id: 13,
+          productName: "Kingston KVR800D2N6/2G DDR2 2GB",
+          category: "RAM",
+          description:
+            "Series: DIMM, Type: DDR2, Capacity: 2GB, Frequency: 800MHz",
+          standardCost: 760.0,
+          listPrice: 950.0,
+          profit: 190.0,
+          quantity: 63,
+          status: "Pending",
+          warehouse: "Mexico City",
+          customerName: "Estela Donovan",
+          orderDate: "02-10-2016",
+        },
+        {
+          id: 14,
+          productName: "Hynix H15201504-11 4GB DDR3",
+          category: "RAM",
+          description:
+            "Series: Genuine, Type: DDR3, Capacity: 4GB, Frequency: 1333MHz",
+          standardCost: 1365.0,
+          listPrice: 1575.0,
+          profit: 210.0,
+          quantity: 82,
+          status: "Shipped",
+          warehouse: "Mexico City",
+          customerName: "Hassan Rivers",
+          orderDate: "02-10-2016",
+        },
+        {
+          id: 15,
+          productName: "HP 500203-061 4GB DDR3",
+          category: "RAM",
+          description:
+            "Series: N/A, Type: DDR3, Capacity: 4GB, Frequency: 1066MHz",
+          standardCost: 2980.0,
+          listPrice: 3172.0,
+          profit: 192.0,
+          quantity: 41,
+          status: "Canceled",
+          warehouse: "Mexico City",
+          customerName: "Jen Mcmahon",
+          orderDate: "29-09-2016",
+        },
+      ];
+
+      let lastId = 15;
+      let editingId = null;
+      let activeFilter = "all";
+      let currentView = "orders";
+
+      // --- UTILS ---
+
+      const usd = (n) =>
+        new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(n);
+      const genId = () => ++lastId;
+
+      function statusBadge(s) {
+        const map = {
+          Shipped: "shipped",
+          Pending: "pending",
+          Canceled: "canceled",
+        };
+        return `<span class="badge badge-${map[s] || "pending"}">${s}</span>`;
+      }
+
+      function catBadge(c) {
+        return `<span class="cat-badge">${c}</span>`;
+      }
+
+      // --- VIEWS ---
+
+      function setView(view, el) {
+        currentView = view;
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((n) => n.classList.remove("active"));
+        el.classList.add("active");
+
+        if (view === "orders") {
+          document.getElementById("pageTitle").textContent = "Orders";
+          document.getElementById("pageSub").textContent =
+            "Manage all your product orders";
+          renderOrders();
+        } else {
+          document.getElementById("pageTitle").textContent = "Summary";
+          document.getElementById("pageSub").textContent =
+            "Analytics & statistics";
+          renderSummary();
+        }
+      }
+
+      // --- RENDER ORDERS ---
+
+      function renderOrders() {
+        const kw = document.getElementById("searchInput").value.toLowerCase();
+        let data = orders.filter(
+          (o) =>
+            o.productName.toLowerCase().includes(kw) ||
+            o.category.toLowerCase().includes(kw) ||
+            o.customerName.toLowerCase().includes(kw) ||
+            o.status.toLowerCase().includes(kw) ||
+            o.warehouse.toLowerCase().includes(kw),
+        );
+        if (activeFilter !== "all")
+          data = data.filter((o) => o.status.toLowerCase() === activeFilter);
+
+        const shipped = orders.filter((o) => o.status === "Shipped").length;
+        const pending = orders.filter((o) => o.status === "Pending").length;
+        const canceled = orders.filter((o) => o.status === "Canceled").length;
+        const revenue = orders.reduce(
+          (s, o) => s + o.listPrice * o.quantity,
+          0,
+        );
+
+        document.getElementById("contentArea").innerHTML = `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">Total Orders</span>
+              <div class="stat-icon" style="background:#fae8eb">
+                <i data-lucide="clipboard-list" style="width:15px;height:15px;color:#800020"></i>
+              </div>
+            </div>
+            <div class="stat-value">${orders.length}</div>
+            <div class="stat-sub">All time</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">Shipped</span>
+              <div class="stat-icon" style="background:#f0f2d8">
+                <i data-lucide="truck" style="width:15px;height:15px;color:#606400"></i>
+              </div>
+            </div>
+            <div class="stat-value" style="color:#606400">${shipped}</div>
+            <div class="stat-sub">Delivered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">Pending</span>
+              <div class="stat-icon" style="background:#fbf4e2">
+                <i data-lucide="clock" style="width:15px;height:15px;color:#8c671b"></i>
+              </div>
+            </div>
+            <div class="stat-value" style="color:#8c671b">${pending}</div>
+            <div class="stat-sub">${canceled} canceled</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">Total Revenue</span>
+              <div class="stat-icon" style="background:#eaf2fa">
+                <i data-lucide="dollar-sign" style="width:15px;height:15px;color:#2b6cb0"></i>
+              </div>
+            </div>
+            <div class="stat-value" style="font-size:22px">${usd(revenue)}</div>
+            <div class="stat-sub">Gross revenue</div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-toolbar">
+            <h3>Order List <span style="color:var(--muted);font-weight:400;font-size:12px">${data.length} records</span></h3>
+            <div class="filter-tabs">
+              <button class="filter-tab ${activeFilter === "all" ? "active" : ""}"     onclick="setFilter('all')">All</button>
+              <button class="filter-tab ${activeFilter === "shipped" ? "active" : ""}" onclick="setFilter('shipped')">Shipped</button>
+              <button class="filter-tab ${activeFilter === "pending" ? "active" : ""}" onclick="setFilter('pending')">Pending</button>
+              <button class="filter-tab ${activeFilter === "canceled" ? "active" : ""}" onclick="setFilter('canceled')">Canceled</button>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Product</th><th>Category</th><th>Qty</th>
+                <th>List Price</th><th>Profit</th><th>Status</th><th>Customer</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${
+                data.length === 0
+                  ? `
+                <tr><td colspan="9">
+                  <div class="empty-state">
+                    <i data-lucide="inbox" style="width:32px;height:32px;display:block;margin:0 auto"></i>
+                    <p style="margin-top:8px">No orders found</p>
+                  </div>
+                </td></tr>
+              `
+                  : data
+                      .map(
+                        (o) => `
+                <tr>
+                  <td style="color:var(--muted)">#${o.id}</td>
+                  <td>
+                    <div class="product-name">${o.productName}</div>
+                    <div class="product-desc">${o.description}</div>
+                  </td>
+                  <td>${catBadge(o.category)}</td>
+                  <td>${o.quantity}</td>
+                  <td>${usd(o.listPrice)}</td>
+                  <td style="color:#606400;font-weight:500">${usd(o.profit)}</td>
+                  <td>${statusBadge(o.status)}</td>
+                  <td>${o.customerName}</td>
+                  <td>
+                    <div class="action-cell">
+                      <button class="btn btn-ghost btn-sm" onclick="openDetailModal(${o.id})" title="View">
+                        <i data-lucide="eye" style="width:13px;height:13px"></i>
+                      </button>
+                      <button class="btn btn-ghost btn-sm" onclick="openEditModal(${o.id})" title="Edit">
+                        <i data-lucide="pencil" style="width:13px;height:13px"></i>
+                      </button>
+                      <button class="btn btn-danger btn-sm" onclick="openConfirmDelete(${o.id})" title="Delete">
+                        <i data-lucide="trash-2" style="width:13px;height:13px"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              `,
+                      )
+                      .join("")
+              }
+            </tbody>
+          </table>
+        </div>
+      `;
+        lucide.createIcons();
+      }
+
+      // --- RENDER SUMMARY ---
+
+      function renderSummary() {
+        const totalRevenue = orders.reduce(
+          (s, o) => s + o.listPrice * o.quantity,
+          0,
+        );
+        const totalProfit = orders.reduce(
+          (s, o) => s + o.profit * o.quantity,
+          0,
+        );
+        const totalQty = orders.reduce((s, o) => s + o.quantity, 0);
+
+        const byStatus = {},
+          byCategory = {};
+        orders.forEach((o) => {
+          byStatus[o.status] = (byStatus[o.status] || 0) + 1;
+          byCategory[o.category] = (byCategory[o.category] || 0) + 1;
+        });
+
+        const topProfit = [...orders].sort((a, b) => b.profit - a.profit)[0];
+        const topQty = [...orders].sort((a, b) => b.quantity - a.quantity)[0];
+
+        document.getElementById("contentArea").innerHTML = `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">Total Orders</span>
+              <div class="stat-icon" style="background:#fae8eb">
+                <i data-lucide="shopping-cart" style="width:15px;height:15px;color:#800020"></i>
+              </div>
+            </div>
+            <div class="stat-value">${orders.length}</div>
+            <div class="stat-sub">${totalQty} total units</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">Total Revenue</span>
+              <div class="stat-icon" style="background:#eaf2fa">
+                <i data-lucide="dollar-sign" style="width:15px;height:15px;color:#2b6cb0"></i>
+              </div>
+            </div>
+            <div class="stat-value" style="font-size:22px">${usd(totalRevenue)}</div>
+            <div class="stat-sub">Gross revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">Total Profit</span>
+              <div class="stat-icon" style="background:#f0f2d8">
+                <i data-lucide="trending-up" style="width:15px;height:15px;color:#606400"></i>
+              </div>
+            </div>
+            <div class="stat-value" style="font-size:22px">${usd(totalProfit)}</div>
+            <div class="stat-sub">Net profit</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-label">Categories</span>
+              <div class="stat-icon" style="background:#fbf4e2">
+                <i data-lucide="clock" style="width:15px;height:15px;color:#8c671b"></i>
+              </div>
+            </div>
+            <div class="stat-value">${Object.keys(byCategory).length}</div>
+            <div class="stat-sub">Product categories</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="table-card">
+            <div class="table-toolbar"><h3>By Status</h3></div>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th style="width: 42%;">Status</th>
+                  <th style="width: 28%; text-align: center;">Count</th>
+                  <th style="width: 30%; text-align: right;">Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${Object.entries(byStatus)
+                  .map(
+                    ([s, c]) => `
+                  <tr>
+                    <td>${statusBadge(s)}</td>
+                    <td style="text-align: center; font-weight: 600; font-size: 15px;">${c}</td>
+                    <td style="text-align: right; font-weight: 600; font-size: 14px; color: var(--text);">${((c / orders.length) * 100).toFixed(1)}%</td>
+                  </tr>
+                `,
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-card">
+            <div class="table-toolbar"><h3>By Category</h3></div>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th style="width: 42%;">Category</th>
+                  <th style="width: 28%; text-align: center;">Count</th>
+                  <th style="width: 30%; text-align: right;">Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${Object.entries(byCategory)
+                  .map(
+                    ([c, n]) => `
+                  <tr>
+                    <td>${catBadge(c)}</td>
+                    <td style="text-align: center; font-weight: 600; font-size: 15px;">${n}</td>
+                    <td style="text-align: right; font-weight: 600; font-size: 14px; color: var(--text);">${((n / orders.length) * 100).toFixed(1)}%</td>
+                  </tr>
+                `,
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-card" style="grid-column:1/-1">
+            <div class="table-toolbar"><h3>Top Highlights</h3></div>
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th style="width: 28%;">Metric</th>
+                  <th style="width: 47%;">Product</th>
+                  <th style="width: 25%; text-align: right;">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="color:var(--muted); font-weight: 500;">Highest Profit / unit</td>
+                  <td style="font-weight: 600; font-size: 14.5px;">${topProfit.productName}</td>
+                  <td style="text-align: right; color:#606400; font-weight: 700; font-size: 16px;">${usd(topProfit.profit)}</td>
+                </tr>
+                <tr>
+                  <td style="color:var(--muted); font-weight: 500;">Highest Quantity</td>
+                  <td style="font-weight: 600; font-size: 14.5px;">${topQty.productName}</td>
+                  <td style="text-align: right; font-weight: 700; font-size: 16px;">${topQty.quantity} units</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+        lucide.createIcons();
+      }
+
+      // --- FILTER & SEARCH ---
+
+      function setFilter(f) {
+        activeFilter = f;
+        renderOrders();
+      }
+      function handleSearch() {
+        if (currentView === "orders") renderOrders();
+      }
+
+      // --- DATE UTILS ---
+      function toDDMMYYYY(isoDate) {
+        if (!isoDate) return "";
+        const parts = isoDate.split("-");
+        if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        return isoDate;
+      }
+
+      function toYYYYMMDD(dmyDate) {
+        if (!dmyDate) return "";
+        const m1 = dmyDate.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+        if (m1) return `${m1[3]}-${m1[2]}-${m1[1]}`;
+        const m2 = dmyDate.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{2,4})$/);
+        if (m2) {
+          const day = m2[1].padStart(2, "0");
+          const monMap = {
+            jan: "01",
+            feb: "02",
+            mar: "03",
+            apr: "04",
+            may: "05",
+            jun: "06",
+            jul: "07",
+            aug: "08",
+            sep: "09",
+            oct: "10",
+            nov: "11",
+            dec: "12",
+          };
+          const month = monMap[m2[2].toLowerCase()] || "01";
+          let yr = m2[3];
+          if (yr.length === 2) yr = (parseInt(yr) > 50 ? "19" : "20") + yr;
+          return `${yr}-${month}-${day}`;
+        }
+        return "";
+      }
+
+      function getTodayDDMMYYYY() {
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2, "0");
+        const m = String(now.getMonth() + 1).padStart(2, "0");
+        const y = now.getFullYear();
+        return `${d}-${m}-${y}`;
+      }
+
+      function handleDateChange(val) {
+        if (val) {
+          document.getElementById("f_orderDate_display").value =
+            toDDMMYYYY(val);
+        }
+      }
+
+      function openDatePicker() {
+        const dateInput = document.getElementById("f_orderDate");
+        if (dateInput) {
+          if (typeof dateInput.showPicker === "function") {
+            try {
+              dateInput.showPicker();
+              return;
+            } catch (e) {}
+          }
+          dateInput.focus();
+        }
+      }
+
+      // --- MODALS ---
+
+      function openCreateModal() {
+        editingId = null;
+        document.getElementById("formModalTitle").textContent = "Add New Order";
+        document.getElementById("formSubmitLabel").textContent = "Save Order";
+        document.getElementById("orderForm").reset();
+        const now = new Date();
+        const todayISO = now.toISOString().split("T")[0];
+        document.getElementById("f_orderDate").value = todayISO;
+        document.getElementById("f_orderDate_display").value =
+          toDDMMYYYY(todayISO);
+        openModal("formModal");
+      }
+
+      function openEditModal(id) {
+        const o = orders.find((o) => o.id === id);
+        if (!o) return;
+        editingId = id;
+        document.getElementById("formModalTitle").textContent = "Edit Order";
+        document.getElementById("formSubmitLabel").textContent = "Update Order";
+        document.getElementById("f_productName").value = o.productName;
+        document.getElementById("f_category").value = o.category;
+        document.getElementById("f_status").value = o.status;
+        document.getElementById("f_description").value = o.description;
+        document.getElementById("f_standardCost").value = o.standardCost;
+        document.getElementById("f_listPrice").value = o.listPrice;
+        document.getElementById("f_profit").value = o.profit;
+        document.getElementById("f_quantity").value = o.quantity;
+        document.getElementById("f_warehouse").value = o.warehouse;
+        const iso = toYYYYMMDD(o.orderDate);
+        document.getElementById("f_orderDate").value = iso;
+        document.getElementById("f_orderDate_display").value = iso
+          ? toDDMMYYYY(iso)
+          : o.orderDate || "";
+        document.getElementById("f_customerName").value = o.customerName;
+        openModal("formModal");
+      }
+
+      function openDetailModal(id) {
+        const o = orders.find((o) => o.id === id);
+        if (!o) return;
+        document.getElementById("detailContent").innerHTML = `
+        <div class="detail-item full">
+          <label>Product Name</label>
+          <span style="font-weight:600;font-size:14px">${o.productName}</span>
+        </div>
+        <div class="detail-item"><label>ID</label><span>#${o.id}</span></div>
+        <div class="detail-item"><label>Category</label><span>${catBadge(o.category)}</span></div>
+        <div class="detail-item full"><label>Description</label><span style="color:var(--muted)">${o.description}</span></div>
+        <div class="detail-item"><label>Standard Cost</label><span>${usd(o.standardCost)}</span></div>
+        <div class="detail-item"><label>List Price</label><span style="font-weight:600">${usd(o.listPrice)}</span></div>
+        <div class="detail-item"><label>Profit / unit</label><span style="color:#606400;font-weight:600">${usd(o.profit)}</span></div>
+        <div class="detail-item"><label>Quantity</label><span>${o.quantity} units</span></div>
+        <div class="detail-item"><label>Status</label><span>${statusBadge(o.status)}</span></div>
+        <div class="detail-item"><label>Warehouse</label><span>${o.warehouse}</span></div>
+        <div class="detail-item"><label>Customer</label><span>${o.customerName}</span></div>
+        <div class="detail-item"><label>Order Date</label><span>${o.orderDate}</span></div>
+      `;
+        openModal("detailModal");
+        lucide.createIcons();
+      }
+
+      function openConfirmDelete(id) {
+        const o = orders.find((o) => o.id === id);
+        if (!o) return;
+        document.getElementById("confirmText").textContent =
+          `Delete "${o.productName}" (ID #${id})? This cannot be undone.`;
+        document.getElementById("confirmDeleteBtn").onclick = () => {
+          deleteOrder(id);
+          closeModal("confirmModal");
+        };
+        openModal("confirmModal");
+      }
+
+      function openModal(id) {
+        document.getElementById(id).classList.add("open");
+      }
+      function closeModal(id) {
+        document.getElementById(id).classList.remove("open");
+      }
+
+      document.querySelectorAll(".modal-overlay").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          if (e.target === el) el.classList.remove("open");
+        });
+      });
+
+      // --- CRUD ---
+
+      function autoCalcProfit() {
+        const cost = parseFloat(document.getElementById("f_standardCost").value);
+        const price = parseFloat(document.getElementById("f_listPrice").value);
+        if (!isNaN(price) && !isNaN(cost)) {
+          document.getElementById("f_profit").value = (price - cost).toFixed(2);
+        }
+      }
+
+      function submitForm() {
+        const productName = document
+          .getElementById("f_productName")
+          .value.trim();
+        if (!productName) {
+          showToast("Product name is required.", "error");
+          document.getElementById("f_productName").focus();
+          return;
+        }
+
+        const costVal = document.getElementById("f_standardCost").value.trim();
+        const cost = parseFloat(costVal);
+        if (costVal === "" || isNaN(cost) || cost < 0) {
+          showToast("Standard cost is required.", "error");
+          document.getElementById("f_standardCost").focus();
+          return;
+        }
+
+        const priceVal = document.getElementById("f_listPrice").value.trim();
+        const price = parseFloat(priceVal);
+        if (priceVal === "" || isNaN(price) || price <= 0) {
+          showToast("List price is required (must be > 0).", "error");
+          document.getElementById("f_listPrice").focus();
+          return;
+        }
+
+        const qtyVal = document.getElementById("f_quantity").value.trim();
+        const qty = parseInt(qtyVal);
+        if (qtyVal === "" || isNaN(qty) || qty <= 0) {
+          showToast("Quantity is required (must be at least 1).", "error");
+          document.getElementById("f_quantity").focus();
+          return;
+        }
+
+        const warehouse = document.getElementById("f_warehouse").value.trim();
+        if (!warehouse) {
+          showToast("Warehouse is required.", "error");
+          document.getElementById("f_warehouse").focus();
+          return;
+        }
+
+        const customerName = document.getElementById("f_customerName").value.trim();
+        if (!customerName) {
+          showToast("Customer name is required.", "error");
+          document.getElementById("f_customerName").focus();
+          return;
+        }
+
+        let profit = parseFloat(document.getElementById("f_profit").value);
+        if (isNaN(profit)) {
+          profit = parseFloat((price - cost).toFixed(2));
+        }
+
+        const data = {
+          productName,
+          category: document.getElementById("f_category").value,
+          status: document.getElementById("f_status").value,
+          description: document.getElementById("f_description").value.trim(),
+          standardCost: cost,
+          listPrice: price,
+          profit,
+          quantity: qty,
+          warehouse,
+          orderDate:
+            document.getElementById("f_orderDate_display").value.trim() ||
+            getTodayDDMMYYYY(),
+          customerName,
+        };
+
+        if (editingId !== null) {
+          const idx = orders.findIndex((o) => o.id === editingId);
+          if (idx !== -1) orders[idx] = { ...orders[idx], ...data };
+          showToast(`Order #${editingId} updated.`, "success");
+        } else {
+          orders.push({ id: genId(), ...data });
+          showToast(`Order #${lastId} created.`, "success");
+        }
+
+        closeModal("formModal");
+        renderOrders();
+      }
+
+      function deleteOrder(id) {
+        const idx = orders.findIndex((o) => o.id === id);
+        if (idx === -1) return;
+        const name = orders[idx].productName;
+        orders.splice(idx, 1);
+        showToast(`Deleted "${name}".`, "info");
+        renderOrders();
+      }
+
+      // --- TOAST ---
+
+      function showToast(msg, type = "success") {
+        const icons = {
+          success: "check-circle",
+          error: "x-circle",
+          info: "info",
+        };
+        const el = document.createElement("div");
+        el.className = `toast ${type}`;
+        el.innerHTML = `<i data-lucide="${icons[type]}" style="width:15px;height:15px;flex-shrink:0"></i><span>${msg}</span>`;
+        document.getElementById("toastWrap").appendChild(el);
+        lucide.createIcons();
+        setTimeout(() => {
+          el.style.opacity = "0";
+          el.style.transition = "opacity .3s";
+          setTimeout(() => el.remove(), 300);
+        }, 3000);
+      }
+
+      // --- INIT ---
+      lucide.createIcons();
+      renderOrders();
+    </script>
+  </body>
+</html>
