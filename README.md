@@ -5,7 +5,7 @@
 Name : Shakila Ardelina  
 NIM : 2410512033  
 Prodi : S1 Sistem Informasi  
-SC : BE Basic - Naufal  
+SC : BE Basic - Naufal
 
 ---
 
@@ -88,7 +88,8 @@ npm run seed
   ```bash
   npm start
   ```
-- **Development Mode** (jalankan di 2 terminal terpisah):
+- **Development Mode**
+
   ```bash
   # Terminal 1 - Backend API (http://localhost:5000)
   npm run dev
@@ -103,16 +104,17 @@ npm run seed
 
 Base URL: `http://localhost:5000/api/orders`
 
-| Method | Endpoint | Deskripsi | Status Code |
-| ------ | -------- | --------- | ----------- |
-| `GET` | `/api/health` | Cek status server API | `200` |
-| `GET` | `/api/orders` | Ambil semua data order (opsional query `?status=`, `?category=`, `?search=`) | `200`, `500` |
-| `GET` | `/api/orders/summary` | Ringkasan statistik total order, revenue, profit, dan kategori | `200`, `500` |
-| `GET` | `/api/orders/:id` | Ambil detail 1 order berdasarkan MongoDB `_id` | `200`, `400`, `404`, `500` |
-| `POST` | `/api/orders` | Tambah order baru ke MongoDB | `201`, `400`, `500` |
-| `PUT` | `/api/orders/:id` | Update data order berdasarkan `_id` | `200`, `400`, `404`, `500` |
-| `PATCH` | `/api/orders/:id` | Update sebagian field order berdasarkan `_id` | `200`, `400`, `404`, `500` |
-| `DELETE` | `/api/orders/:id` | Hapus order berdasarkan `_id` | `200`, `400`, `404`, `500` |
+| Method   | Endpoint              | Deskripsi                                                                    | Status Code                |
+| -------- | --------------------- | ---------------------------------------------------------------------------- | -------------------------- |
+| `GET`    | `/api/health`         | Cek status server API                                                        | `200`                      |
+| `GET`    | `/api/orders`         | Ambil semua data order (opsional query `?status=`, `?category=`, `?search=`) | `200`, `500`               |
+| `GET`    | `/api/orders/summary`    | Ringkasan statistik total order, revenue, profit, dan kategori               | `200`, `500`               |
+| `GET`    | `/api/orders/error-test` | Endpoint simulasi error untuk pengujian HTTP status code 500                 | `500`                      |
+| `GET`    | `/api/orders/:id`        | Ambil detail 1 order berdasarkan MongoDB `_id`                               | `200`, `400`, `404`, `500` |
+| `POST`   | `/api/orders`         | Tambah order baru ke MongoDB                                                 | `201`, `400`, `500`        |
+| `PUT`    | `/api/orders/:id`     | Update data order berdasarkan `_id`                                          | `200`, `400`, `404`, `500` |
+| `PATCH`  | `/api/orders/:id`     | Update sebagian field order berdasarkan `_id`                                | `200`, `400`, `404`, `500` |
+| `DELETE` | `/api/orders/:id`     | Hapus order berdasarkan `_id`                                                | `200`, `400`, `404`, `500` |
 
 ### Contoh Request & Response
 
@@ -163,7 +165,7 @@ Response (`201 Created`):
 ## Testing API di Postman
 
 1. Jalankan server dengan `npm start`.
-2. Uji endpoint secara berurutan di Postman:
+2. Uji endpoint di Postman:
    - `GET http://localhost:5000/api/orders`
    - `POST http://localhost:5000/api/orders` (Body -> `raw` -> `JSON`)
    - `GET http://localhost:5000/api/orders/<_id_hasil_post>`
