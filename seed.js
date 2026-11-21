@@ -1,6 +1,10 @@
-export let orders = [
+import "dotenv/config";
+import mongoose from "mongoose";
+import connectDB from "./config/db.js";
+import Order from "./models/Order.js";
+
+const initialOrders = [
   {
-    id: 1,
     productName: "Intel Xeon E5-2699 V3 (OEM/Tray)",
     category: "CPU",
     description: "Speed: 2.3GHz, Cores: 18, TDP: 145W",
@@ -14,7 +18,6 @@ export let orders = [
     orderDate: "17-11-2016",
   },
   {
-    id: 2,
     productName: "Intel Xeon E5-2697 V3",
     category: "CPU",
     description: "Speed: 2.6GHz, Cores: 14",
@@ -28,7 +31,6 @@ export let orders = [
     orderDate: "20-02-2017",
   },
   {
-    id: 3,
     productName: "Intel Xeon E5-2698 V3 (OEM/Tray)",
     category: "CPU",
     description: "Speed: 2.3GHz, Cores: 16",
@@ -42,7 +44,6 @@ export let orders = [
     orderDate: "03-01-2017",
   },
   {
-    id: 4,
     productName: "PNY VCQP6000-PB",
     category: "Video Card",
     description: "Memory: 24GB, Core Clock: 1.42GHz",
@@ -56,7 +57,6 @@ export let orders = [
     orderDate: "30-06-2017",
   },
   {
-    id: 5,
     productName: "PNY VCQM6000-24GB-PB",
     category: "Video Card",
     description: "Chipset: Quadro M6000, Memory: 24GB",
@@ -70,7 +70,6 @@ export let orders = [
     orderDate: "30-06-2016",
   },
   {
-    id: 6,
     productName: "PNY VCQM6000-PB",
     category: "Video Card",
     description: "Chipset: Quadro M6000, Memory: 12GB",
@@ -84,7 +83,6 @@ export let orders = [
     orderDate: "30-06-2015",
   },
   {
-    id: 7,
     productName: "Crucial 64GB DDR4",
     category: "Storage",
     description: "Speed: DDR4-2133, Type: 288-pin DIMM, CAS: 15, Size: 64GB",
@@ -98,7 +96,6 @@ export let orders = [
     orderDate: "02-12-2016",
   },
   {
-    id: 8,
     productName: "G.Skill TridentZ RGB 128GB",
     category: "Storage",
     description: "Speed: DDR4-3200, Type: 288-pin DIMM, CAS: 14, Size: 128GB",
@@ -112,7 +109,6 @@ export let orders = [
     orderDate: "27-10-2016",
   },
   {
-    id: 9,
     productName: "Corsair Dominator Platinum 128GB",
     category: "Storage",
     description: "Speed: DDR4-3200, Type: 288-pin DIMM, CAS: 16, Size: 128GB",
@@ -126,7 +122,6 @@ export let orders = [
     orderDate: "14-06-2016",
   },
   {
-    id: 10,
     productName: "Intel DP35DPM",
     category: "Mother Board",
     description: "CPU: LGA775, Form Factor: ATX, RAM Slots: 4, Max RAM: 8GB",
@@ -140,7 +135,6 @@ export let orders = [
     orderDate: "29-11-2016",
   },
   {
-    id: 11,
     productName: "Asus X99-E-10G WS",
     category: "Mother Board",
     description: "CPU: LGA2011-3, Form Factor: SSI CEB, RAM Slots: 8, Max RAM: 128GB",
@@ -154,7 +148,6 @@ export let orders = [
     orderDate: "28-09-2017",
   },
   {
-    id: 12,
     productName: "Asus ROG MAXIMUS IX EXTREME",
     category: "Mother Board",
     description: "CPU: LGA1151, Form Factor: EATX, RAM Slots: 4, Max RAM: 64GB",
@@ -168,7 +161,6 @@ export let orders = [
     orderDate: "27-09-2017",
   },
   {
-    id: 13,
     productName: "Kingston KVR800D2N6/2G DDR2 2GB",
     category: "RAM",
     description: "Series: DIMM, Type: DDR2, Capacity: 2GB, Frequency: 800MHz",
@@ -182,7 +174,6 @@ export let orders = [
     orderDate: "02-10-2016",
   },
   {
-    id: 14,
     productName: "Hynix H15201504-11 4GB DDR3",
     category: "RAM",
     description: "Series: Genuine, Type: DDR3, Capacity: 4GB, Frequency: 1333MHz",
@@ -196,7 +187,6 @@ export let orders = [
     orderDate: "02-10-2016",
   },
   {
-    id: 15,
     productName: "HP 500203-061 4GB DDR3",
     category: "RAM",
     description: "Series: N/A, Type: DDR3, Capacity: 4GB, Frequency: 1066MHz",
@@ -211,9 +201,31 @@ export let orders = [
   },
 ];
 
-export let lastId = Math.max(...orders.map((o) => o.id));
+async function seed() {
+  const shouldReset = process.argv.includes("--reset");
 
-export function generateId() {
-  lastId++;
-  return lastId;
+  try {
+    await connectDB();
+    const existingCount = await Order.countDocuments();
+
+    if (existingCount > 0 && !shouldReset) {
+      console.log(`Skipped seeding: ${existingCount} order(s) already exist. Use --reset to replace.`);
+      return;
+    }
+
+    if (shouldReset && existingCount > 0) {
+      await Order.deleteMany({});
+      console.log("Cleared existing orders.");
+    }
+
+    const inserted = await Order.insertMany(initialOrders);
+    console.log(`Seeded ${inserted.length} orders into MongoDB.`);
+  } catch (error) {
+    console.error("Seeding failed:", error.message);
+    process.exitCode = 1;
+  } finally {
+    await mongoose.connection.close();
+  }
 }
+
+seed();
